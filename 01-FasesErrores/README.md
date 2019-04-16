@@ -68,16 +68,19 @@
 
 ## Resultado
 Paso 2: 
+- El comando ejecutado fue: cpp hello2.c > hello2.i
 - El preprocesador reemplazó el comentario /*medio*/ por un espacio.
 - El preprocesador reemplazó la directiva #include con la cabecera de la biblioteca estandar correspondiente
 
 Paso 4: 
-- Declara una función printf que recibe un puntero a char y n argumentos más.
+- Declara una función printf que recibe un puntero a char y n argumentos más (función variadica).
 
 Paso 5:
+- El comando ejecutado fue: gcc -E hello3.c > hello3.i
 - La diferencia es que hello3.i contiene una serie de sentencias al comienzo del archivo, las cuales son macros utilizadas durante el proceso de compilación.
 
 Paso 6:
+- El comando ejecutado fue: gcc -S hello3.c
 - Si, se generó el archivo hello3.s. No se pudo compilar, arroja el siguiente error:
 hello3.c: In function ‘main’:
 hello3.c:4:1: warning: implicit declaration of function ‘prontf’; did you mean ‘printf’? [-Wimplicit-function-declaration]
@@ -87,45 +90,58 @@ hello3.c:4:1: warning: implicit declaration of function ‘prontf’; did you me
 hello3.c:4:1: error: expected declaration or statement at end of input
 
 Paso 7: 
-- Se cambio prontf por printf
-- Generó hello4.s pero arroja el siguiente error:
+- Se agrego la llave faltante
+- Se ejecutaron los comandos: 
+    - gcc -E hello4.c > hello4.i
+    - gcc -S hello4.c
+- Generó hello4.s pero arroja el siguiente warning:
 hello4.c: In function ‘main’:
-hello4.c:5:27: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
-  printf("La respuesta es %d\n");
-                          ~^
-hello4.c:5:2: error: expected declaration or statement at end of input
-  printf("La respuesta es %d\n");
+hello4.c:5:2: warning: implicit declaration of function ‘prontf’; did you mean ‘printf’? [-Wimplicit-function-declaration]
+  prontf("La respuesta es %d\n");
   ^~~~~~
+  printf
 
 Paso 8:
-- El archivo hello4.s contiene una sola linea:
-	.file	"hello4.c"
-Como hello4.c contiene errores, no se pudo generar las instrucciones en assembler.
+- El archivo hello4.s contiene el codigo assembler de nuestro programa. En el código assembler hay un call a prontf, la cual no se encuentra definida.
 
 Paso 9: 
+- Se ejecuto el comando: gcc -c hello4.c
 - Durante el ensamblado no hubo errores. Se generó el archivo hello4.o
 
 Paso 10:
 - No se pudo generar el ejecutable hello4. El error que se muestra por terminal es:
-/usr/bin/ld: /usr/lib/gcc/x86_64-linux-gnu/8/../../../x86_64-linux-gnu/Scrt1.o: en la función `_start':
-(.text+0x20): referencia a `main' sin definir
+/usr/bin/ld: hello4.o: en la función `main':
+hello4.c:(.text+0x1c): referencia a `prontf' sin definir
 collect2: error: ld returned 1 exit status
 
+Esto es porque prontf no esta definida, entonces va a buscar su definición en la biblioteca estandar. Al no encontrar ninguna función llamada prontf, arroja un error durante la vinculación
+
 Paso 11:
-- Se agregó la "}" al final del archivo. 
+- Se cambio prontf por printf
+- Se ejecutaron los comandos:
+    - gcc -E hello5.c > hello5.i
+    - gcc -S hello5.c
+    - gcc -c hello5.c
+    - gcc -o hello5.out hello5.o
 - Se generó el ejecutable hello5. Hubo un warning:
 hello5.c: In function ‘main’:
 hello5.c:5:27: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
   printf("La respuesta es %d\n");
 
 Paso 12:
+- El comando ejecutado fue: ./hello5
 - Se ejecutó hello5 y el resultado fue: "La respuesta es -220405656". El resultado obtenido es producto del warning que hubo en el paso 11. 
 
 Paso 13:
 - Se agregó el argumento faltante durante el uso de printf
+- Se ejecutaron los comandos:
+    - gcc -E hello6.c > hello6.i
+    - gcc -S hello6.c
+    - gcc -c hello6.c
+    - gcc -o hello6.out hello6.o
 - Se generó el ejecutable y se lo ejecutó
 - El resultado fue: "La respuesta es 42"
 
 Paso 15:
-- hello7.c utiliza printf, pero esta función no esta definida en nuestro programa y tampoco hacemos uso de alguna directiva que la incluya. El motivo por el cual funciona es que durante la etapa de vinculación y ensamblado, se busca dentro de las bibliotecas estadares de C todas aquellas funciones que no esten definidas dentro de nuestro código. La función printf se encuentra dentro de una de las bibliotecas estadares y es por eso que nuestro programa compila y funciona.
+- hello7.c utiliza printf, pero esta función no esta definida en nuestro programa y tampoco hacemos uso de alguna directiva que la incluya. El motivo por el cual funciona es que, por un lado C permite la utilización de funciones declaradas implicitamente, y por otro lado durante la etapa de vinculación y ensamblado, se busca dentro de las bibliotecas estadares de C todas aquellas funciones que no esten definidas dentro de nuestro código. La función printf se encuentra dentro de una de las bibliotecas estadares y es por eso que nuestro programa compila y funciona.
 
